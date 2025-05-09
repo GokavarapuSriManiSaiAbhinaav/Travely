@@ -1,23 +1,20 @@
 import axios from "axios";
 import { createContext, useEffect, useReducer } from "react";
 
-const INITIAL_STATE = {
-let userFromStorage = null;
+// ✅ SAFELY parse user from localStorage
+let user = null;
 try {
   const storedUser = localStorage.getItem("user");
   if (storedUser && storedUser !== "undefined") {
-    userFromStorage = JSON.parse(storedUser);
+    user = JSON.parse(storedUser);
   }
-} catch (error) {
-  console.error("Failed to parse user from localStorage:", error);
+} catch (err) {
+  console.error("Failed to parse user from localStorage", err);
 }
 
+// ✅ Create initial state with parsed user
 const INITIAL_STATE = {
-  user: userFromStorage,
-  loading: false,
-  error: null,
-};
-
+  user: user,
   loading: false,
   error: null,
 };
@@ -63,10 +60,9 @@ export const AuthContextProvider = ({ children }) => {
   }, [state.user]);
 
   const logout = () => {
-    localStorage.removeItem("user"); // remove the user from localStorage
+    localStorage.removeItem("user");
     axios.get("/api/logout").then(() => {
-      // make a request to your backend to clear cookies and session
-      dispatch({ type: "LOGOUT" }); // update the state to clear the user
+      dispatch({ type: "LOGOUT" });
     });
   };
 
@@ -77,7 +73,7 @@ export const AuthContextProvider = ({ children }) => {
         loading: state.loading,
         error: state.error,
         dispatch,
-        logout, // add the logout function to the context
+        logout,
       }}
     >
       {children}
